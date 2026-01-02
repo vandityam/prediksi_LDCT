@@ -32,7 +32,7 @@ st.markdown(
 # ======================================================
 @st.cache_data
 def load_data():
-    df = pd.read_csv("files/dashboard_dataguru.csv", sep=";")
+    df = pd.read_csv("files/dashboard_dataguru.csv")
     df.columns = df.columns.str.strip()
     return df
 
