@@ -1,0 +1,79 @@
+/* =========================================
+   POPPINS FONT
+========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+html,
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333333;
+    background-color: #F8F8F8;
+}
+
+/* =========================================
+   HEADER + TITLES
+========================================= */
+.main-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: #111;
+    animation: fadeIn 0.7s ease;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 18px;
+}
+
+.section-title {
+    color: #6F42C1;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #C8B6FF;
+    padding-bottom: 4px;
+}
+
+/* METRIC CARDS */
+.stMetric {
+    padding: 14px !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    border: 1px solid #ececec !important;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* CHART CARDS */
+.stPlotlyChart {
+    background: #ffffff !important;
+    padding: 14px 18px !important;
+    border-radius: 14px !important;
+    border: 1px solid #ececec !important;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* TABS */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 14px;
+    border-bottom: 1px solid #e6e6e6;
+    padding-bottom: 4px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    padding: 8px 6px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
