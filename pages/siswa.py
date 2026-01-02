@@ -36,7 +36,6 @@ st.markdown(
 def load_data():
     return pd.read_csv(
         "files/dashboard_datasiswa.csv",
-        sep=";",
         encoding="utf-8"
     )
 
