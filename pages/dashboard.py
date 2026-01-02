@@ -30,8 +30,8 @@ st.markdown(
 # ======================================================
 @st.cache_data
 def load_data():
-    df_guru = pd.read_csv("files/dashboard_dataguru.csv", sep=";")
-    df_siswa = pd.read_csv("files/dashboard_datasiswa.csv", sep=";")
+    df_guru = pd.read_csv("files/dashboard_dataguru.csv")
+    df_siswa = pd.read_csv("files/dashboard_datasiswa.csv")
 
     # Rename kolom sekolah (KUNCI)
     df_guru = df_guru.rename(columns={"Asal Instansi": "SekolahNama"})
