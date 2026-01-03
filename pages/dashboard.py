@@ -26,8 +26,9 @@ load_css()
 st.markdown(
     """
     <div style='text-align:center;'>
-        <h2>📊 Dashboard Analisis Korelasi</h2>
-        <p>Literasi Digital Guru & Computational Thinking Siswa</p>
+        <h2>Dashboard Analisis Literasi Digital & CT</h2>
+        <p>Hubungan Literasi Digital Guru dan Computational Thinking Siswa<br>
+        <b>Studi Kasus Sekolah Yayasan PPKS Solo</b></p>
     </div>
     """,
     unsafe_allow_html=True
@@ -89,12 +90,13 @@ df_korelasi = pd.merge(
 ).round(3)
 
 # ======================================================
-# TABS LAYOUT
+# TABS
 # ======================================================
-tab1, tab2, tab3 = st.tabs([
-    "📌 Korelasi Antar Sekolah",
-    "📊 Korelasi Antar Sekolah per Level",
-    "🏫 Korelasi Per Level di Dalam Sekolah"
+tab1, tab2, tab3, tab4 = st.tabs([
+    "Korelasi Antar Sekolah",
+    "Korelasi Antar Sekolah per Level",
+    "Korelasi Per Level di Dalam Sekolah",
+    "Prediksi CT Siswa"
 ])
 
 # ======================================================
@@ -122,6 +124,7 @@ with tab1:
                 "CT_Siswa_Norm": "Rata-rata CT Siswa"
             }
         )
+        fig.update_layout(height=400)
         st.plotly_chart(fig, use_container_width=True)
 
     with c2:
@@ -131,7 +134,7 @@ with tab1:
         st.info(
             "Hubungan signifikan secara statistik"
             if p < 0.05 else
-            "Hubungan kuat namun belum signifikan"
+            "Hubungan positif dengan kekuatan sedang"
         )
 
     st.markdown("#### 📋 Data Agregat per Sekolah")
@@ -141,7 +144,7 @@ with tab1:
 # TAB 2 — KORELASI ANTAR SEKOLAH PER LEVEL
 # ======================================================
 with tab2:
-    st.subheader("Korelasi Antar Sekolah per Level")
+    st.subheader("Korelasi Antar Sekolah Berdasarkan Level")
 
     level_pilih = st.selectbox(
         "Pilih Level",
@@ -182,7 +185,7 @@ with tab2:
 # TAB 3 — KORELASI PER LEVEL DALAM SEKOLAH
 # ======================================================
 with tab3:
-    st.subheader("Korelasi Per Level di Dalam Sekolah")
+    st.subheader("Korelasi Pola Level di Dalam Sekolah")
 
     hasil = []
 
@@ -219,5 +222,77 @@ with tab3:
 
     st.info(
         "Analisis ini bersifat eksploratif untuk melihat pola hubungan "
-        "di dalam masing-masing sekolah berdasarkan level."
+        "berdasarkan level LD guru dan CT siswa di dalam sekolah."
+    )
+
+# ======================================================
+# TAB 4 — PREDIKSI CT SISWA
+# ======================================================
+with tab4:
+    st.subheader("Simulasi Prediksi CT Siswa")
+
+    st.markdown(
+        """
+        Simulasi ini menggunakan **model regresi linier sederhana**
+        untuk memperkirakan nilai Computational Thinking (CT) siswa
+        berdasarkan **rata-rata literasi digital guru pada tingkat sekolah**.
+        """
+    )
+
+    # =============================
+    # MODEL (HASIL IPYNB)
+    # =============================
+    INTERCEPT = -1.4366
+    SLOPE = 0.5150
+
+    c1, c2 = st.columns([1, 2])
+
+    with c1:
+        ld_input = st.slider(
+            "Rata-rata Literasi Digital Guru",
+            min_value=round(df_korelasi["LD_Guru_Mean"].min(), 2),
+            max_value=round(df_korelasi["LD_Guru_Mean"].max(), 2),
+            value=round(df_korelasi["LD_Guru_Mean"].mean(), 2),
+            step=0.01
+        )
+
+        ct_pred = round(INTERCEPT + SLOPE * ld_input, 3)
+
+        st.metric("Prediksi CT Siswa", ct_pred)
+
+        if ct_pred > df_korelasi["CT_Siswa_Norm"].mean():
+            st.success("📈 CT siswa diprediksi meningkat")
+        else:
+            st.warning("📉 CT siswa diprediksi relatif lebih rendah")
+
+    with c2:
+        fig_pred = px.scatter(
+            df_korelasi,
+            x="LD_Guru_Mean",
+            y="CT_Siswa_Norm",
+            trendline="ols",
+            labels={
+                "LD_Guru_Mean": "Rata-rata LD Guru",
+                "CT_Siswa_Norm": "Rata-rata CT Siswa"
+            }
+        )
+
+        fig_pred.add_scatter(
+            x=[ld_input],
+            y=[ct_pred],
+            mode="markers",
+            marker=dict(size=14, symbol="star"),
+            name="Prediksi"
+        )
+
+        fig_pred.update_layout(height=420)
+        st.plotly_chart(fig_pred, use_container_width=True)
+
+    st.info(
+        f"""
+        Jika rata-rata literasi digital guru berada pada nilai **{ld_input}**,
+        maka nilai CT siswa diperkirakan sebesar **{ct_pred}**.
+        Model ini digunakan untuk melihat **kecenderungan hubungan**, bukan
+        untuk penilaian individu.
+        """
     )
