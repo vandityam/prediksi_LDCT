@@ -106,31 +106,12 @@ st.markdown("---")
 # ======================================================
 # MAIN VISUAL (KIRI - KANAN)
 # ======================================================
-left, right = st.columns([2, 1])
+left, right = st.columns([1, 2])
 
 # ------------------------------------------------------
 # LEFT : SCATTER CT vs NILAI
 # ------------------------------------------------------
 with left:
-    fig_scatter = px.scatter(
-        filtered,
-        x="CT_norm",
-        y="Nilai",
-        color="Level_CT",
-        hover_data=["Nama", "SekolahNama", "Kelas"],
-        title="Hubungan Nilai dan Computational Thinking",
-        labels={
-            "CT_norm": "CT Normalisasi",
-            "Nilai": "Nilai Bebras"
-        }
-    )
-    fig_scatter.update_layout(height=380)
-    st.plotly_chart(fig_scatter, use_container_width=True)
-
-# ------------------------------------------------------
-# RIGHT : DISTRIBUSI LEVEL CT (BAR)
-# ------------------------------------------------------
-with right:
     df_level = (
         filtered
         .groupby("Level_CT", as_index=False)
@@ -148,6 +129,24 @@ with right:
     fig_level.update_layout(height=380)
     st.plotly_chart(fig_level, use_container_width=True)
 
+# ------------------------------------------------------
+# RIGHT : DISTRIBUSI LEVEL CT (BAR)
+# ------------------------------------------------------
+with right:
+    fig_scatter = px.scatter(
+        filtered,
+        x="CT_norm",
+        y="Nilai",
+        color="Level_CT",
+        hover_data=["Nama", "SekolahNama", "Kelas"],
+        title="Hubungan Nilai dan Computational Thinking",
+        labels={
+            "CT_norm": "CT Normalisasi",
+            "Nilai": "Nilai Bebras"
+        }
+    )
+    fig_scatter.update_layout(height=380)
+    st.plotly_chart(fig_scatter, use_container_width=True)
 
 # ======================================================
 # PERBANDINGAN SEKOLAH
@@ -180,19 +179,20 @@ st.plotly_chart(fig_bar, use_container_width=True)
 # ======================================================
 # TABEL DETAIL (OPTIONAL)
 # ======================================================
-with st.expander("📋 Lihat Data Detail Siswa"):
-    st.dataframe(
-        filtered[
-            [
-                "Nama",
-                "SekolahNama",
-                "Provinsi",
-                "Kategori",
-                "Nilai",
-                "CT_norm",
-                "Level_CT"
-            ]
-        ],
-        use_container_width=True,
-        height=350
-    )
+st.markdown("### 📋 Tabel Detail Data Siswa")
+
+st.dataframe(
+    filtered[
+        [
+            "Nama",
+            "SekolahNama",
+            "Provinsi",
+            "Kategori",
+            "Nilai",
+            "CT_norm",
+            "Level_CT"
+        ]
+    ],
+    use_container_width=True,
+    height=350
+)

@@ -100,12 +100,33 @@ st.markdown("---")
 # ======================================================
 # MAIN VISUAL (KIRI - KANAN)
 # ======================================================
-left, right = st.columns([2, 1])
+left, right = st.columns([1, 2])
 
 # ------------------------------------------------------
 # LEFT : SCATTER USIA vs MEAN_LD
 # ------------------------------------------------------
 with left:
+    df_level = (
+        filtered
+        .groupby("Level_LD", as_index=False)
+        .size()
+        .rename(columns={"size": "Jumlah"})
+    )
+
+    fig_level = px.pie(
+        df_level,
+        values="Jumlah",
+        names="Level_LD",
+        title="Distribusi Level LD"
+    )
+
+    fig_level.update_layout(height=380)
+    st.plotly_chart(fig_level, use_container_width=True)
+
+# ------------------------------------------------------
+# RIGHT : DISTRIBUSI LEVEL LD
+# ------------------------------------------------------
+with right:
     fig_scatter = px.scatter(
         filtered,
         x="Usia",
@@ -120,27 +141,6 @@ with left:
     )
     fig_scatter.update_layout(height=380)
     st.plotly_chart(fig_scatter, use_container_width=True)
-
-# ------------------------------------------------------
-# RIGHT : DISTRIBUSI LEVEL LD
-# ------------------------------------------------------
-with right:
-    df_level = (
-        filtered
-        .groupby("Level_LD", as_index=False)
-        .size()
-        .rename(columns={"size": "Jumlah"})
-    )
-
-    fig_level = px.pie(
-        df_level,
-        values="Jumlah",
-        names="Level_LD",
-        title="Distribusi Level Literasi Digital"
-    )
-
-    fig_level.update_layout(height=380)
-    st.plotly_chart(fig_level, use_container_width=True)
 
 # ======================================================
 # PERBANDINGAN INSTANSI
@@ -171,20 +171,21 @@ fig_bar.update_layout(height=320)
 st.plotly_chart(fig_bar, use_container_width=True)
 
 # ======================================================
-# TABEL DETAIL (OPTIONAL)
+# TABEL DETAIL DATA GURU
 # ======================================================
-with st.expander("📋 Lihat Data Detail Guru"):
-    st.dataframe(
-        filtered[
-            [
-                "NAMA",
-                "Usia",
-                "Asal Instansi",
-                "Total_LD",
-                "Mean_LD",
-                "Level_LD"
-            ]
-        ],
-        use_container_width=True,
-        height=350
-    )
+st.markdown("### 📋 Tabel Detail Data Guru")
+
+st.dataframe(
+    filtered[
+        [
+            "NAMA",
+            "Usia",
+            "Asal Instansi",
+            "Total_LD",
+            "Mean_LD",
+            "Level_LD"
+        ]
+    ],
+    use_container_width=True,
+    height=350
+)
