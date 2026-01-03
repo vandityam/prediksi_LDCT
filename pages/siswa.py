@@ -42,7 +42,11 @@ st.markdown(
 # ======================================================
 @st.cache_data
 def load_data():
-    return pd.read_csv("files/dashboard_datasiswa.csv", encoding="utf-8")
+    return pd.read_csv(
+        "files/dashboard_datasiswa.csv",
+        sep=";",
+        encoding="utf-8"
+    )
 
 df = load_data()
 
