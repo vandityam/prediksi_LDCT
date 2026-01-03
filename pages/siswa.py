@@ -6,7 +6,7 @@ import plotly.express as px
 # PAGE CONFIG
 # ======================================================
 st.set_page_config(
-    page_title="Dashboard Siswa - Bebras Challenge",
+    page_title="Dashboard Siswa - Hasil CT Bebras Challenge",
     layout="wide"
 )
 

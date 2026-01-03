@@ -6,7 +6,7 @@ import plotly.express as px
 # PAGE CONFIG
 # ======================================================
 st.set_page_config(
-    page_title="Dashboard Guru - Literasi Digital",
+    page_title="Dashboard Guru - Literasi Digital PPKS Solo",
     layout="wide"
 )
 

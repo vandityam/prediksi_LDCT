@@ -7,7 +7,7 @@ from scipy.stats import spearmanr, pearsonr
 # PAGE CONFIG
 # ======================================================
 st.set_page_config(
-    page_title="Analisis Korelasi LD Guru & CT Siswa",
+    page_title="Dashboard Utama Analisis",
     layout="wide"
 )
 
