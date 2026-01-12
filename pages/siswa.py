@@ -30,7 +30,7 @@ st.markdown(
     <div style='text-align:center; margin-bottom:10px;'>
         <h2>Dashboard Data Siswa</h2>
         <p>
-        Ringkasan <b>Computational Thinking Siswa</b> berdasarkan hasil Bebras Challenge
+            Ringkasan <b>Computational Thinking Siswa</b> berdasarkan hasil Bebras Challenge
         </p>
     </div>
     """,
@@ -47,40 +47,69 @@ def load_data():
         encoding="utf-8"
     )
 
-df = load_data()
+df_siswa = load_data()
 
 # ======================================================
-# SIDEBAR FILTER
+# FILTER – SISWA
 # ======================================================
-st.sidebar.markdown("### 🔍 Filter Data")
+f1, f2, f3 = st.columns(3)
 
-provinsi = st.sidebar.multiselect(
-    "Provinsi",
-    sorted(df["Provinsi"].dropna().unique())
-)
+with f1:
+    provinsi = st.multiselect(
+        "Filter Provinsi",
+        sorted(df_siswa["Provinsi"].dropna().unique()),
+        placeholder="Choose option"
+    )
 
-kategori = st.sidebar.multiselect(
-    "Kategori",
-    sorted(df["Kategori"].dropna().unique())
-)
-
-filtered = df.copy()
+df_filter = df_siswa.copy()
 if provinsi:
-    filtered = filtered[filtered["Provinsi"].isin(provinsi)]
-if kategori:
-    filtered = filtered[filtered["Kategori"].isin(kategori)]
+    df_filter = df_filter[df_filter["Provinsi"].isin(provinsi)]
 
-st.sidebar.markdown(
-    f"<small>Total data: <b>{len(filtered)} siswa</b></small>",
-    unsafe_allow_html=True
-)
+with f2:
+    sekolah_siswa = st.multiselect(
+        "Filter Sekolah",
+        sorted(df_filter["SekolahNama"].dropna().unique()),
+        placeholder="Choose option"
+    )
+
+with f3:
+    kategori = st.multiselect(
+        "Filter Kategori",
+        sorted(df_siswa["Kategori"].dropna().unique()),
+        placeholder="Choose option"
+    )
 
 # ======================================================
-# INFO FILTER
+# APPLY FILTER – SISWA
+# ======================================================
+filtered_siswa = df_siswa.copy()
+
+if sekolah_siswa:
+    filtered_siswa = filtered_siswa[
+        filtered_siswa["SekolahNama"].isin(sekolah_siswa)
+    ]
+
+if provinsi:
+    filtered_siswa = filtered_siswa[
+        filtered_siswa["Provinsi"].isin(provinsi)
+    ]
+
+if kategori:
+    filtered_siswa = filtered_siswa[
+        filtered_siswa["Kategori"].isin(kategori)
+    ]
+
+# ======================================================
+# INFO FILTER – SISWA
 # ======================================================
 active_filters = []
-if provinsi: active_filters.append("Provinsi: " + ", ".join(provinsi))
-if kategori: active_filters.append("Kategori: " + ", ".join(kategori))
+
+if sekolah_siswa:
+    active_filters.append(f"Sekolah: {len(sekolah_siswa)}")
+if provinsi:
+    active_filters.append("Provinsi: " + ", ".join(provinsi))
+if kategori:
+    active_filters.append("Kategori: " + ", ".join(kategori))
 
 if active_filters:
     st.info("Filter aktif → " + " | ".join(active_filters))
@@ -88,18 +117,19 @@ else:
     st.info("Menampilkan seluruh data siswa.")
 
 # ======================================================
-# KPI RINGKAS (UPGRADE)
+# KPI RINGKAS
 # ======================================================
-persen_ct_tinggi = (filtered["Level_CT"] == "Tinggi").mean() * 100
-jumlah_instansi = filtered["SekolahNama"].nunique()
+persen_ct_tinggi = (
+    (filtered_siswa["Level_CT"] == "Tinggi").mean() * 100
+)
+jumlah_sekolah = filtered_siswa["SekolahNama"].nunique()
 
 k1, k2, k3, k4 = st.columns(4)
 
-k1.metric("JUMLAH SISWA", len(filtered))
-# k2.metric("RATA-RATA NILAI", round(filtered["Nilai"].mean(), 2))
-k2.metric("JUMLAH SEKOLAH", jumlah_instansi)
-k3.metric("RATA-RATA CT NORM", round(filtered["CT_norm"].mean(), 3))
-k4.metric("CT TERTINGGI", f"{persen_ct_tinggi:.1f}%")
+k1.metric("Jumlah Siswa", len(filtered_siswa))
+k2.metric("Jumlah Sekolah", jumlah_sekolah)
+k3.metric("Rata-rata CT Norm", round(filtered_siswa["CT_norm"].mean(), 3))
+k4.metric("CT Tertinggi", f"{persen_ct_tinggi:.1f}%")
 
 st.markdown("---")
 
@@ -108,45 +138,54 @@ st.markdown("---")
 # ======================================================
 left, right = st.columns([1, 2])
 
-# ------------------------------------------------------
-# LEFT : SCATTER CT vs NILAI
-# ------------------------------------------------------
+warna_level = {
+    "Rendah": "#E74C3C",
+    "Sedang": "#F1C40F",
+    "Tinggi": "#2ECC71"
+}
+
+# ======================================================
+# LEFT : DISTRIBUSI LEVEL CT
+# ======================================================
 with left:
     df_level = (
-        filtered
+        filtered_siswa
         .groupby("Level_CT", as_index=False)
         .size()
         .rename(columns={"size": "Jumlah"})
     )
 
-    fig_level = px.pie(
+    fig_pie = px.pie(
         df_level,
         values="Jumlah",
         names="Level_CT",
-        title="Distribusi Level CT"
+        title="Distribusi Tingkat Computational Thinking Siswa",
+        color="Level_CT",
+        color_discrete_map=warna_level
     )
 
-    fig_level.update_layout(height=380)
-    st.plotly_chart(fig_level, use_container_width=True)
+    fig_pie.update_layout(height=380)
+    st.plotly_chart(fig_pie, use_container_width=True)
 
-# ------------------------------------------------------
-# RIGHT : DISTRIBUSI LEVEL CT (BAR)
-# ------------------------------------------------------
+# ======================================================
+# RIGHT : VARIASI SKOR CT (BOXPLOT)
+# ======================================================
 with right:
-    fig_scatter = px.scatter(
-        filtered,
-        x="CT_norm",
-        y="Nilai",
+    fig_box = px.box(
+        filtered_siswa,
+        x="Level_CT",
+        y="CT_norm",
         color="Level_CT",
-        hover_data=["Nama", "SekolahNama", "Kelas"],
-        title="Hubungan Nilai dan Computational Thinking",
+        color_discrete_map=warna_level,
+        title="Variasi Skor Computational Thinking Siswa berdasarkan Level",
         labels={
-            "CT_norm": "CT Normalisasi",
-            "Nilai": "Nilai Bebras"
+            "Level_CT": "Level Computational Thinking",
+            "CT_norm": "Skor CT (Normalisasi)"
         }
     )
-    fig_scatter.update_layout(height=380)
-    st.plotly_chart(fig_scatter, use_container_width=True)
+
+    fig_box.update_layout(height=380, showlegend=False)
+    st.plotly_chart(fig_box, use_container_width=True)
 
 # ======================================================
 # PERBANDINGAN SEKOLAH
@@ -156,7 +195,7 @@ st.markdown("### Rata-rata CT per Sekolah")
 top_n = st.slider("Top Sekolah", 5, 15, 8)
 
 df_school = (
-    filtered
+    filtered_siswa
     .groupby("SekolahNama", as_index=False)["CT_norm"]
     .mean()
     .sort_values("CT_norm", ascending=False)
@@ -182,7 +221,7 @@ st.plotly_chart(fig_bar, use_container_width=True)
 st.markdown("### 📋 Tabel Detail Data Siswa")
 
 st.dataframe(
-    filtered[
+    filtered_siswa[
         [
             "Nama",
             "SekolahNama",

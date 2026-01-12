@@ -6,7 +6,7 @@ import plotly.express as px
 # PAGE CONFIG
 # ======================================================
 st.set_page_config(
-    page_title="Dashboard Guru - Literasi Digital PPKS Solo",
+    page_title="Dashboard Guru - Literasi Digital Yayasan PPKS",
     layout="wide"
 )
 
@@ -27,10 +27,10 @@ load_css()
 # ======================================================
 st.markdown(
     """
-    <div style='text-align:center; margin-bottom:10px;'>
+    <div style='text-align:center; margin-top:5px; margin-bottom:10px;'>
         <h2>Dashboard Data Guru</h2>
         <p>
-        Ringkasan <b>Literasi Digital Guru</b> berdasarkan penilaian Yayasan PPKS Solo
+            Ringkasan <b>Literasi Digital Guru</b> berdasarkan penilaian Yayasan PPKS   
         </p>
     </div>
     """,
@@ -46,54 +46,72 @@ def load_data():
     df.columns = df.columns.str.strip()
     return df
 
-df = load_data()
+df_guru = load_data()
 
 # ======================================================
-# SIDEBAR FILTER
+# FILTER – GURU
 # ======================================================
-st.sidebar.markdown("### 🔍 Filter Data Guru")
+f1, f2 = st.columns(2)
 
-level_ld = st.sidebar.multiselect(
-    "Level Literasi Digital",
-    sorted(df["Level_LD"].dropna().unique())
-)
+with f1:
+    sekolah_guru = st.multiselect(
+        "Filter Sekolah",
+        sorted(df_guru["Asal Instansi"].dropna().unique()),
+        placeholder="Choose option"
+    )
 
-instansi = st.sidebar.multiselect(
-    "Instansi",
-    sorted(df["Asal Instansi"].dropna().unique())
-)
+with f2:
+    level_ld = st.multiselect(
+        "Filter Level Literasi Digital",
+        ["Rendah", "Sedang", "Tinggi"],
+        placeholder="Choose option"
+    )
 
-filtered = df.copy()
+# ======================================================
+# APPLY FILTER – GURU
+# ======================================================
+filtered_guru = df_guru.copy()
+
+if sekolah_guru:
+    filtered_guru = filtered_guru[
+        filtered_guru["Asal Instansi"].isin(sekolah_guru)
+    ]
+
 if level_ld:
-    filtered = filtered[filtered["Level_LD"].isin(level_ld)]
-if instansi:
-    filtered = filtered[filtered["Asal Instansi"].isin(instansi)]
-
-st.sidebar.markdown(
-    f"<small>Total data: <b>{len(filtered)} guru</b></small>",
-    unsafe_allow_html=True
-)
+    filtered_guru = filtered_guru[
+        filtered_guru["Level_LD"].isin(level_ld)
+    ]
 
 # ======================================================
-# INFO FILTER
+# INFO FILTER – GURU
 # ======================================================
-if level_ld or instansi:
-    st.info("Filter aktif diterapkan pada data guru.")
+active_filters = []
+
+if sekolah_guru:
+    active_filters.append(f"Sekolah: {len(sekolah_guru)}")
+
+if level_ld:
+    active_filters.append("Level LD: " + ", ".join(level_ld))
+
+if active_filters:
+    st.info("Filter aktif → " + " | ".join(active_filters))
 else:
     st.info("Menampilkan seluruh data guru.")
 
 # ======================================================
 # KPI RINGKAS
 # ======================================================
-persen_ld_tinggi = (filtered["Level_LD"] == "Tinggi").mean() * 100
-jumlah_instansi = filtered["Asal Instansi"].nunique()
+persen_ld_tinggi = (
+    (filtered_guru["Level_LD"] == "Tinggi").mean() * 100
+)
+jumlah_instansi = filtered_guru["Asal Instansi"].nunique()
 
 k1, k2, k3, k4 = st.columns(4)
 
-k1.metric("JUMLAH GURU", len(filtered))
-k2.metric("JUMLAH SEKOLAH", jumlah_instansi)
-k3.metric("RATA-RATA LD GURU", round(filtered["Mean_LD"].mean(), 2))
-k4.metric("LD TERTINGGI", f"{persen_ld_tinggi:.1f}%")
+k1.metric("Jumlah Guru", len(filtered_guru))
+k2.metric("Jumlah Sekolah", jumlah_instansi)
+k3.metric("Rata-rata LD Guru", round(filtered_guru["Mean_LD"].mean(), 2))
+k4.metric("LD Tertinggi", f"{persen_ld_tinggi:.1f}%")
 
 st.markdown("---")
 
@@ -102,55 +120,64 @@ st.markdown("---")
 # ======================================================
 left, right = st.columns([1, 2])
 
-# ------------------------------------------------------
-# LEFT : SCATTER USIA vs MEAN_LD
-# ------------------------------------------------------
+warna_level = {
+    "Rendah": "#E74C3C",
+    "Sedang": "#F1C40F",
+    "Tinggi": "#2ECC71"
+}
+
+# ======================================================
+# LEFT : DISTRIBUSI LEVEL LITERASI DIGITAL
+# ======================================================
 with left:
     df_level = (
-        filtered
+        filtered_guru
         .groupby("Level_LD", as_index=False)
         .size()
         .rename(columns={"size": "Jumlah"})
     )
 
-    fig_level = px.pie(
+    fig_pie = px.pie(
         df_level,
         values="Jumlah",
         names="Level_LD",
-        title="Distribusi Level LD"
+        title="Distribusi Tingkat Literasi Digital Guru",
+        color="Level_LD",
+        color_discrete_map=warna_level
     )
 
-    fig_level.update_layout(height=380)
-    st.plotly_chart(fig_level, use_container_width=True)
+    fig_pie.update_layout(height=380)
+    st.plotly_chart(fig_pie, use_container_width=True)
 
-# ------------------------------------------------------
-# RIGHT : DISTRIBUSI LEVEL LD
-# ------------------------------------------------------
+# ======================================================
+# RIGHT : VARIASI SKOR LD (BOXPLOT)
+# ======================================================
 with right:
-    fig_scatter = px.scatter(
-        filtered,
-        x="Usia",
+    fig_box = px.box(
+        filtered_guru,
+        x="Level_LD",
         y="Mean_LD",
         color="Level_LD",
-        hover_data=["NAMA", "Asal Instansi"],
-        title="Hubungan Usia Guru dan Literasi Digital",
+        color_discrete_map=warna_level,
+        title="Variasi Skor Literasi Digital Guru berdasarkan Level",
         labels={
-            "Usia": "Usia Guru",
-            "Mean_LD": "Mean Literasi Digital"
+            "Level_LD": "Level Literasi Digital",
+            "Mean_LD": "Skor Literasi Digital"
         }
     )
-    fig_scatter.update_layout(height=380)
-    st.plotly_chart(fig_scatter, use_container_width=True)
+
+    fig_box.update_layout(height=380, showlegend=False)
+    st.plotly_chart(fig_box, use_container_width=True)
 
 # ======================================================
 # PERBANDINGAN INSTANSI
 # ======================================================
-st.markdown("### Rata-rata Literasi Digital per Instansi")
+st.markdown("### Rata-rata Literasi Digital per Sekolah")
 
 top_n = st.slider("Top Instansi", 5, 15, 8)
 
 df_instansi = (
-    filtered
+    filtered_guru
     .groupby("Asal Instansi", as_index=False)["Mean_LD"]
     .mean()
     .sort_values("Mean_LD", ascending=False)
@@ -167,7 +194,7 @@ fig_bar = px.bar(
     }
 )
 
-fig_bar.update_layout(height=320)
+fig_bar.update_layout(height=350)
 st.plotly_chart(fig_bar, use_container_width=True)
 
 # ======================================================
@@ -176,7 +203,7 @@ st.plotly_chart(fig_bar, use_container_width=True)
 st.markdown("### 📋 Tabel Detail Data Guru")
 
 st.dataframe(
-    filtered[
+    filtered_guru[
         [
             "NAMA",
             "Usia",
