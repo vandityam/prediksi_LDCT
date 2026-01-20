@@ -75,14 +75,23 @@ df_korelasi = pd.merge(
 # HEADER
 # ======================================================
 st.markdown(
-    """<div style='text-align:center;'>
-        <h2>Dashboard Utama Analisis</h2>
-        <p>
-        Hubungan Literasi Digital Guru dalam Memprediksi
-        Kemampuan Computational Thinking Siswa<br>
-        <b>Studi Kasus Sekolah Yayasan PPKS</b>
+    """
+    <div style="
+        background: white;
+        padding: 28px 40px;
+        border-radius: 30px;
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
+        text-align: center;
+        margin-bottom: 25px;
+    ">
+        <h2 style="margin-bottom: 10px;">Dashboard Utama Analisis</h2>
+        <p style="font-size: 16px; line-height: 1.6; margin: 0;">
+            Hubungan Literasi Digital Guru dalam Memprediksi
+            Kemampuan Computational Thinking Siswa<br>
+            <b>Studi Kasus Sekolah Yayasan PPKS</b>
         </p>
-    </div>""",
+    </div>
+    """,
     unsafe_allow_html=True
 )
 

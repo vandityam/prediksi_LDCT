@@ -27,10 +27,17 @@ load_css()
 # ======================================================
 st.markdown(
     """
-    <div style='text-align:center; margin-top:5px; margin-bottom:10px;'>
-        <h2>Dashboard Data Guru</h2>
-        <p>
-            Ringkasan <b>Literasi Digital Guru</b> berdasarkan penilaian Yayasan PPKS   
+    <div style="
+        background: white;
+        padding: 28px 40px;
+        border-radius: 30px;
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
+        text-align: center;
+        margin-bottom: 25px;
+    ">
+        <h2 style="margin-bottom: 10px;">Dashboard Data Guru</h2>
+        <p style="font-size: 16px; line-height: 1.6; margin: 0;">
+            Ringkasan <b>Literasi Digital Guru</b> berdasarkan penilaian Yayasan PPKSS</b>
         </p>
     </div>
     """,
@@ -150,24 +157,37 @@ with left:
     st.plotly_chart(fig_pie, use_container_width=True)
 
 # ======================================================
-# RIGHT : VARIASI SKOR LD (BOXPLOT)
+# RIGHT : RATA-RATA SKOR LD (BAR CHART)
 # ======================================================
 with right:
-    fig_box = px.box(
-        filtered_guru,
+    summary = (
+        filtered_guru
+        .groupby("Level_LD")["Mean_LD"]
+        .mean()
+        .reset_index()
+    )
+
+    fig_bar = px.bar(
+        summary,
         x="Level_LD",
         y="Mean_LD",
         color="Level_LD",
         color_discrete_map=warna_level,
-        title="Variasi Skor Literasi Digital Guru berdasarkan Level",
+        text_auto=".2f",
+        title="Rata-rata Skor Literasi Digital Guru per Level",
         labels={
             "Level_LD": "Level Literasi Digital",
-            "Mean_LD": "Skor Literasi Digital"
+            "Mean_LD": "Rata-rata Skor Literasi Digital"
         }
     )
 
-    fig_box.update_layout(height=380, showlegend=False)
-    st.plotly_chart(fig_box, use_container_width=True)
+    fig_bar.update_layout(
+        height=380,
+        showlegend=False
+    )
+
+    st.plotly_chart(fig_bar, use_container_width=True)
+
 
 # ======================================================
 # PERBANDINGAN INSTANSI

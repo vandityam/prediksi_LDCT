@@ -27,10 +27,17 @@ load_css()
 # ======================================================
 st.markdown(
     """
-    <div style='text-align:center; margin-bottom:10px;'>
-        <h2>Dashboard Data Siswa</h2>
-        <p>
-            Ringkasan <b>Computational Thinking Siswa</b> berdasarkan hasil Bebras Challenge
+    <div style="
+        background: white;
+        padding: 28px 40px;
+        border-radius: 30px;
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
+        text-align: center;
+        margin-bottom: 25px;
+    ">
+        <h2 style="margin-bottom: 10px;">Dashboard Data Siswa</h2>
+        <p style="font-size: 16px; line-height: 1.6; margin: 0;">
+            Ringkasan <b>Computational Thinking Siswa</b> berdasarkan hasil Bebras Challenge</b>
         </p>
     </div>
     """,
@@ -167,25 +174,38 @@ with left:
     fig_pie.update_layout(height=380)
     st.plotly_chart(fig_pie, use_container_width=True)
 
-# ======================================================
-# RIGHT : VARIASI SKOR CT (BOXPLOT)
+## ======================================================
+# RIGHT : RATA-RATA SKOR CT (BAR CHART)
 # ======================================================
 with right:
-    fig_box = px.box(
-        filtered_siswa,
+    summary_ct = (
+        filtered_siswa
+        .groupby("Level_CT")["CT_norm"]
+        .mean()
+        .reset_index()
+    )
+
+    fig_bar_ct = px.bar(
+        summary_ct,
         x="Level_CT",
         y="CT_norm",
         color="Level_CT",
         color_discrete_map=warna_level,
-        title="Variasi Skor Computational Thinking Siswa berdasarkan Level",
+        text_auto=".2f",
+        title="Rata-rata Skor Computational Thinking Siswa per Level",
         labels={
             "Level_CT": "Level Computational Thinking",
-            "CT_norm": "Skor CT (Normalisasi)"
+            "CT_norm": "Rata-rata Skor CT (Normalisasi)"
         }
     )
 
-    fig_box.update_layout(height=380, showlegend=False)
-    st.plotly_chart(fig_box, use_container_width=True)
+    fig_bar_ct.update_layout(
+        height=380,
+        showlegend=False
+    )
+
+    st.plotly_chart(fig_bar_ct, use_container_width=True)
+
 
 # ======================================================
 # PERBANDINGAN SEKOLAH
