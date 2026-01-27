@@ -145,12 +145,6 @@ st.markdown("---")
 # ======================================================
 left, right = st.columns([1, 2])
 
-warna_level = {
-    "Rendah": "#E74C3C",
-    "Sedang": "#F1C40F",
-    "Tinggi": "#2ECC71"
-}
-
 # ======================================================
 # LEFT : DISTRIBUSI LEVEL CT
 # ======================================================
@@ -168,7 +162,7 @@ with left:
         names="Level_CT",
         title="Distribusi Tingkat Computational Thinking Siswa",
         color="Level_CT",
-        color_discrete_map=warna_level
+        color_discrete_sequence=px.colors.sequential.YlOrRd
     )
 
     fig_pie.update_layout(height=380)
@@ -189,14 +183,14 @@ with right:
         summary_ct,
         x="Level_CT",
         y="CT_norm",
-        color="Level_CT",
-        color_discrete_map=warna_level,
         text_auto=".2f",
         title="Rata-rata Skor Computational Thinking Siswa per Level",
         labels={
             "Level_CT": "Level Computational Thinking",
             "CT_norm": "Rata-rata Skor CT (Normalisasi)"
-        }
+        },
+        color="CT_norm",
+        color_continuous_scale='YlOrRd'
     )
 
     fig_bar_ct.update_layout(
@@ -229,7 +223,9 @@ fig_bar = px.bar(
     labels={
         "CT_norm": "Rata-rata CT",
         "SekolahNama": "Sekolah"
-    }
+    },
+    color="CT_norm",
+    color_continuous_scale=px.colors.sequential.Inferno 
 )
 
 fig_bar.update_layout(height=320)

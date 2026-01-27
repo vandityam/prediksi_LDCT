@@ -1,3 +1,4 @@
+from turtle import color
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -127,12 +128,6 @@ st.markdown("---")
 # ======================================================
 left, right = st.columns([1, 2])
 
-warna_level = {
-    "Rendah": "#E74C3C",
-    "Sedang": "#F1C40F",
-    "Tinggi": "#2ECC71"
-}
-
 # ======================================================
 # LEFT : DISTRIBUSI LEVEL LITERASI DIGITAL
 # ======================================================
@@ -145,12 +140,12 @@ with left:
     )
 
     fig_pie = px.pie(
-        df_level,
-        values="Jumlah",
-        names="Level_LD",
-        title="Distribusi Tingkat Literasi Digital Guru",
-        color="Level_LD",
-        color_discrete_map=warna_level
+    df_level,
+    values="Jumlah",
+    names="Level_LD",
+    title="Distribusi Tingkat Literasi Digital Guru",
+    color="Level_LD",
+    color_discrete_sequence=px.colors.sequential.YlOrRd
     )
 
     fig_pie.update_layout(height=380)
@@ -171,14 +166,14 @@ with right:
         summary,
         x="Level_LD",
         y="Mean_LD",
-        color="Level_LD",
-        color_discrete_map=warna_level,
         text_auto=".2f",
         title="Rata-rata Skor Literasi Digital Guru per Level",
         labels={
             "Level_LD": "Level Literasi Digital",
             "Mean_LD": "Rata-rata Skor Literasi Digital"
-        }
+        },
+        color="Mean_LD",  
+        color_continuous_scale='YlOrRd'
     )
 
     fig_bar.update_layout(
@@ -210,8 +205,10 @@ fig_bar = px.bar(
     orientation="h",
     labels={
         "Mean_LD": "Rata-rata Literasi Digital",
-        "Asal Instansi": "Instansi"
-    }
+        "Asal Instansi": "Instansi",
+    },
+    color="Mean_LD",
+    color_continuous_scale=px.colors.sequential.Inferno 
 )
 
 fig_bar.update_layout(height=350)
